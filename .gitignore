@@ -224,11 +224,16 @@ __marimo__/
 
 *.db
 .venv/
-*.joblib
+# Model weights — baseline joblibs (< 20 MB total) are tracked in git.
+# models/* ignores all files in models/; !-rules below unignore the two
+# serving artifacts so they are committed. No bare *.joblib rule here.
+models/*
+!models/baseline_model.joblib
+!models/calibrator.joblib
 *.parquet
 data/*.parquet
 data/preds_*.parquet
 data/test_reviews.csv
 data/*.csv
-models/
 __pycache__/
+data.zip
