@@ -103,7 +103,17 @@ def train_and_eval():
 
     logger.info("Computing predictions on HateXplain external test (domain shift)...")
     hate_probs = pipeline.predict_proba(hate_df["text"].fillna(""))[:, 1]
-    hate_metrics = evaluate_predictions(hate_df["label"].values, hate_probs, hate_df)
+    hate_m1_label = hate_df["label_m1"].values if "label_m1" in hate_df.columns else hate_df["label"].values
+    hate_m1_metrics = evaluate_predictions(hate_m1_label, hate_probs, hate_df)
+
+    # Mapping 2: hateful -> 1, normal -> 0, offensive excluded
+    if "label_m2" in hate_df.columns:
+        mask_m2 = hate_df["label_m2"] >= 0
+        hate_m2_df = hate_df[mask_m2]
+        hate_m2_probs = hate_probs[mask_m2]
+        hate_m2_metrics = evaluate_predictions(hate_m2_df["label_m2"].values.astype(int), hate_m2_probs, hate_m2_df)
+    else:
+        hate_m2_metrics = None
 
     logger.info("Computing predictions on Civil Comments val (for calibration baseline)...")
     val_probs = pipeline.predict_proba(val_df["text"].fillna(""))[:, 1]
@@ -113,14 +123,18 @@ def train_and_eval():
         "model": "TF-IDF + LogisticRegression",
         "civil_comments_val": val_metrics,
         "civil_comments_test": civil_metrics,
-        "hatexplain_test_domain_shift": hate_metrics,
+        "hatexplain_test_domain_shift": hate_m1_metrics,
+        "hatexplain_test_m1": hate_m1_metrics,
+        "hatexplain_test_m2": hate_m2_metrics,
     }
 
     with open("metrics.json", "w") as f:
         json.dump(results, f, indent=2)
 
     logger.info(f"Civil Comments Test AUROC: {civil_metrics['auroc']}, PR-AUC: {civil_metrics['pr_auc']}, Borkan Bias Metric: {civil_metrics['borkan_bias_metric']}")
-    logger.info(f"HateXplain Test AUROC: {hate_metrics['auroc']}, PR-AUC: {hate_metrics['pr_auc']}")
+    logger.info(f"HateXplain M1 AUROC: {hate_m1_metrics['auroc']}, PR-AUC: {hate_m1_metrics['pr_auc']}")
+    if hate_m2_metrics:
+        logger.info(f"HateXplain M2 AUROC: {hate_m2_metrics['auroc']}, PR-AUC: {hate_m2_metrics['pr_auc']}")
     logger.info("Metrics successfully saved to metrics.json")
 
     return results

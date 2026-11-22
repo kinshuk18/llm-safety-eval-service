@@ -31,3 +31,10 @@ This document records key decisions backed strictly by empirical artifacts and e
 - **Result (with number)**: Failed with `RuntimeError: Dataset scripts are no longer supported, but found hatexplain.py` because HF `datasets>=3.0.0` permanently removed remote python builder scripts.
 - **Decision**: Downgraded and pinned `datasets<3.0.0` (`datasets==2.21.0`), and used canonical repo ID `Hate-speech-CNERG/hatexplain` with cached Parquet persistence in `data/`.
 - **What failed**: Direct `load_dataset('hatexplain')` without version pinning crashed immediately on HuggingFace Datasets 5.x.
+
+### 5. HateXplain Annotation Distributions and Label Mapping Mismatch
+- **Question**: How sensitive is out-of-domain evaluation to how 3-class annotator labels ('hatespeech', 'normal', 'offensive') are mapped into binary toxicity?
+- **What I tried**: Analyzed raw 5,772 annotator votes across 1,924 test items (29.94% hatespeech, 29.61% offensive, 40.45% normal). Evaluated baseline under Mapping 1 (M1: hateful+offensive -> 1, N=1,924) and Mapping 2 (M2: hateful -> 1, offensive excluded, N=1,376).
+- **Result (with number)**: Under M1, AUROC is **0.5666**, PR-AUC is **0.6644**, ECE is **0.3745**. Under M2, AUROC is **0.5564**, PR-AUC is **0.5063**, ECE is **0.2639**.
+- **Decision**: Persist both M1 and M2 in `metrics.json`. The conceptual gap between Civil Comments (general toxicity) and HateXplain (targeted hate speech vs casual profanity/offensive slang) degrades discrimination equally under both mappings.
+- **What failed**: Expecting that excluding ambiguous offensive slang (M2) would restore baseline discrimination; the underlying bag-of-words model lacks syntactic context to distinguish slurs used as abuse vs reclaimed ingroup speech.

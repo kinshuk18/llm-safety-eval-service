@@ -225,9 +225,9 @@ __marimo__/
 *.db
 .venv/
 *.joblib
-
+*.parquet
 data/*.parquet
+data/preds_*.parquet
 data/test_reviews.csv
 models/
-*.db
 __pycache__/

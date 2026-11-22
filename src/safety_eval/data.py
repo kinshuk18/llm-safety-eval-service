@@ -109,7 +109,10 @@ def prepare_civil_comments(
     return {"train": train_df, "val": val_df, "test": test_df}
 
 def prepare_hatexplain() -> pd.DataFrame:
-    """Loads HateXplain external test set, maps to binary labels (hateful/offensive -> 1, normal -> 0)."""
+    """Loads HateXplain external test set, maps to binary labels under two mappings:
+    M1: hateful/offensive -> 1, normal -> 0
+    M2: hateful -> 1, normal -> 0, offensive -> -1 (excluded)
+    """
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     logger.info("Loading HateXplain test split...")
     ds = load_dataset("Hate-speech-CNERG/hatexplain", trust_remote_code=True)
@@ -117,31 +120,57 @@ def prepare_hatexplain() -> pd.DataFrame:
 
     texts = []
     labels = []
+    labels_m1 = []
+    labels_m2 = []
+    maj_classes = []
     ids = []
-    hateful_or_offensive_votes = []
+    hatespeech_votes = []
+    offensive_votes = []
     normal_votes = []
 
     for item in test_split:
         text = " ".join(item["post_tokens"])
         ann_labels = item["annotators"]["label"]
         # names=["hatespeech", "normal", "offensive"] => 0: hatespeech, 1: normal, 2: offensive
-        # hateful/offensive -> 1, normal -> 0
-        h_or_o = sum(1 for l in ann_labels if l in (0, 2))
-        norm = sum(1 for l in ann_labels if l == 1)
-        majority_label = 1 if h_or_o > norm else 0
+        v_hate = sum(1 for l in ann_labels if l == 0)
+        v_norm = sum(1 for l in ann_labels if l == 1)
+        v_off = sum(1 for l in ann_labels if l == 2)
+
+        # M1: hateful/offensive -> 1, normal -> 0
+        m1 = 1 if (v_hate + v_off) > v_norm else 0
+
+        # Majority 3-class (each post has 3 annotators, no ties in test set)
+        if v_hate >= 2:
+            maj = 0
+            m2 = 1
+        elif v_norm >= 2:
+            maj = 1
+            m2 = 0
+        else:
+            maj = 2
+            m2 = -1  # Excluded under M2
 
         texts.append(text)
-        labels.append(majority_label)
+        labels.append(m1)
+        labels_m1.append(m1)
+        labels_m2.append(m2)
+        maj_classes.append(maj)
         ids.append(item["id"])
-        hateful_or_offensive_votes.append(h_or_o)
-        normal_votes.append(norm)
+        hatespeech_votes.append(v_hate)
+        offensive_votes.append(v_off)
+        normal_votes.append(v_norm)
 
     df = pd.DataFrame({
         "id": ids,
         "text": texts,
         "label": labels,
-        "hateful_offensive_votes": hateful_or_offensive_votes,
+        "label_m1": labels_m1,
+        "label_m2": labels_m2,
+        "majority_label_3class": maj_classes,
+        "hatespeech_votes": hatespeech_votes,
+        "offensive_votes": offensive_votes,
         "normal_votes": normal_votes,
+        "hateful_offensive_votes": [h + o for h, o in zip(hatespeech_votes, offensive_votes)],
     })
 
     # Add identity tags for HateXplain
@@ -151,7 +180,7 @@ def prepare_hatexplain() -> pd.DataFrame:
         df[col] = id_df[col].values
 
     df.to_parquet(DATA_DIR / "hatexplain_test.parquet", index=False)
-    logger.info(f"HateXplain test saved ({len(df)} samples, positive rate={df['label'].mean():.4f}).")
+    logger.info(f"HateXplain test saved ({len(df)} samples, M1 positive rate={df['label_m1'].mean():.4f}, M2 valid={sum(df['label_m2'] >= 0)}).")
     return df
 
 def main():
