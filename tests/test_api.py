@@ -54,3 +54,14 @@ def test_review_endpoints():
     exp_resp = client.post("/review/export", json={"output_path": "data/test_reviews.csv"})
     assert exp_resp.status_code == 200
     assert exp_resp.json()["count"] >= 1
+
+def test_calibrated_path_and_threshold_loading():
+    response = client.post("/evaluate", json={"text": "This is completely abhorrent violence and hatred."})
+    assert response.status_code == 200
+    data = response.json()
+    assert "threshold" in data
+    assert data["threshold"] == pytest.approx(0.1161, abs=0.01)
+    assert data["model_version"] == "baseline-tfidf-logreg-v1"
+    assert "calibrated_score" in data
+    assert isinstance(data["flagged"], bool)
+

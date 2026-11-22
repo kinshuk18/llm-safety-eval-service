@@ -45,16 +45,18 @@ _calibrator = None
 
 def get_model():
     global _model
-    if _model is None and MODEL_PATH.exists():
-        _model = joblib.load(MODEL_PATH)
+    model_path = Path(config.get("model_path", "models/baseline_model.joblib"))
+    if _model is None and model_path.exists():
+        _model = joblib.load(model_path)
     return _model
 
 def get_calibrator():
     global _calibrator
-    if _calibrator is None and CALIBRATOR_PATH.exists():
-        _calibrator = joblib.load(CALIBRATOR_PATH)
+    calibrator_path = Path(config.get("calibrator_path", "models/calibrator.joblib"))
+    if _calibrator is None and calibrator_path.exists():
+        _calibrator = joblib.load(calibrator_path)
     elif _calibrator is None:
-        _calibrator = TemperatureScaler(temperature=config.get("temperature", 1.0))
+        _calibrator = TemperatureScaler(temperature=float(config.get("temperature", 1.0)))
     return _calibrator
 
 class EvaluateRequest(BaseModel):
@@ -94,8 +96,11 @@ def evaluate_text(req: EvaluateRequest):
             probs = model.predict_proba([req.text])
             raw_score = float(probs[0][1])
             # logit for temperature scaling
-            raw_score_clipped = max(min(raw_score, 1.0 - 1e-7), 1e-7)
-            logit = float(np_logit(raw_score_clipped))
+            if hasattr(model, "decision_function"):
+                logit = float(model.decision_function([req.text])[0])
+            else:
+                raw_score_clipped = max(min(raw_score, 1.0 - 1e-7), 1e-7)
+                logit = float(np_logit(raw_score_clipped))
             calibrated_score = float(calibrator.predict_proba(np.array([logit]))[0])
         else:
             raw_score = 0.5
