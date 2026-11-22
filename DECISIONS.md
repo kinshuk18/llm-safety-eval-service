@@ -61,3 +61,35 @@ This document records key engineering and modeling decisions backed strictly by 
 - **Result (with number)**: Beyond general argument words (`stupid` with coef 28.18, `ridiculous` with coef 13.93), demographic identity terms carried high positive weights: `white` (coef +7.50, present in 169 false positives), `black` (coef +6.91, present in 81 false positives), and `racist` (coef +6.38, present in 54 false positives).
 - **Decision**: Deploy an active human-in-the-loop review queue with a $\pm 0.10$ tolerance margin around the decision threshold to intercept borderline comments before automated enforcement.
 - **What failed**: Stopword removal alone failed to resolve the issue because identity terms and discussion nouns are legitimate content words, not standard stopwords.
+
+### 9. Dependency Split and Docker Image Size
+- **Question**: Should torch/transformers be in the serving container?
+- **What I tried**: Initially `requirements.txt` included `torch==2.15.0` and `transformers==5.24.0`. The Dockerfile installed these in the serving image.
+- **Result**: torch wheel alone is ~700 MB compressed; image build times exceeded 10 min on slow connections. The API and `calibrate.py` never import torch at runtime.
+- **Decision**: Split into `requirements.txt` (serving: fastapi, scikit-learn, joblib, etc.) and `requirements-train.txt` (torch, transformers<5, datasets==2.21.0, accelerate). Dockerfile uses `requirements.txt` only.
+- **What failed**: Keeping torch in `requirements.txt` made CI extremely slow and the Docker image unnecessarily large (~1.5 GB vs ~200 MB).
+
+### 10. Colab Training Failures — transformers 5.x and Zip Nesting
+- **Question**: What errors occurred when setting up DistilBERT training on Colab T4?
+- **What I tried**:
+  - (a) Installed `transformers==5.0.0`; called `TrainingArguments` with `warmup_ratio` parameter.
+  - (b) Uploaded `data.zip` and extracted with standard unzip; referenced `data/civil_comments_train.parquet`.
+- **Result**:
+  - (a) `TypeError: TrainingArguments.__init__() got an unexpected keyword argument 'warmup_ratio'` — `warmup_ratio` was dropped in transformers 5.x (renamed/removed). Fixed by pinning `transformers<5`.
+  - (b) The zip extracted to `data/data/civil_comments_train.parquet` (double-nested path) because the zip was created from inside the `data/` directory. Fixed by extracting with strip-components or adjusting the path.
+- **Decision**: Pin `transformers<5` in `requirements-train.txt`; document the double-nest zip issue.
+- **What failed**: `transformers>=5.0` for training; assuming zip root equals repo root.
+
+### 11. DistilBERT vs Baseline — What Improved and What Did Not
+- **Question**: Does DistilBERT reduce identity-group false positive rate compared to the baseline?
+- **What I tried**: Evaluated both models at their respective cost-optimal thresholds (baseline τ=0.1161, DistilBERT τ=0.1769).
+- **Result**: AUROC improved 0.9196→0.9562, Borkan bias metric improved 0.8681→0.9189, BPSN worst-case improved from 0.7285 (white) to 0.8537 (black). However, identity-group FPR at threshold did NOT meaningfully improve for DistilBERT: lgbtq FPR=0.3294, black FPR=0.3177, white FPR=0.2994 vs overall FPR=0.0645 — still 3–5× higher, essentially the same pattern as baseline.
+- **Decision**: Report both BPSN AUC (which improved) and subgroup FPR at threshold (which did not) separately, since they measure different failure modes.
+- **What failed**: Assuming that improved BPSN AUC would translate to lower identity-group FPR at the operational threshold; the token-association problem persists even in fine-tuned transformers without explicit debiasing.
+
+### 12. F1 at Cost-Optimal Threshold Falls for DistilBERT While Recall Rises
+- **Question**: Is maximizing recall at the cost-optimal threshold desirable when F1 falls?
+- **What I tried**: Evaluated DistilBERT at cost-optimal threshold τ=0.1769: recall=0.8054, F1=0.6321. Compared to F1@0.5=0.6713.
+- **Result**: F1 at the cost-optimal threshold (0.6321) is lower than F1@0.5 (0.6713) because the threshold is shifted toward recall. However, recall at τ=0.1769 (0.8054) dramatically exceeds recall at τ=0.5 (which would be ~0.5–0.6 range). The cost function (5:1 FN:FP) deliberately accepts false positives to avoid false negatives.
+- **Decision**: Report both F1@0.5 and F1@threshold separately. The cost-optimal threshold is correct for the stated FN:FP=5:1 cost ratio; F1@threshold is not the right metric for evaluating this choice.
+- **What failed**: Using F1-maximization to pick the threshold; standard F1 optimizes at τ≈0.5 and ignores the asymmetric cost of missing toxic content.
