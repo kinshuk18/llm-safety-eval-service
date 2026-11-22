@@ -12,8 +12,9 @@ COPY configs/ configs/
 COPY models/baseline_model.joblib models/baseline_model.joblib
 COPY models/calibrator.joblib models/calibrator.joblib
 
-# Non-root user for security
-RUN adduser --disabled-password --gecos "" appuser
+# Non-root user for security; /app must be writable because the review queue creates review_queue.db there
+RUN adduser --disabled-password --gecos "" appuser \
+    && chown appuser:appuser /app
 USER appuser
 
 EXPOSE 8000
