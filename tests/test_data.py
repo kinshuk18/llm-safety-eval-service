@@ -1,4 +1,9 @@
 import pytest
+
+# datasets is only installed in the training environment (requirements-train.txt).
+# Skip this test file when datasets is not available (e.g., serving-only CI).
+pytest.importorskip("datasets", reason="datasets package not installed; install requirements-train.txt to run data tests")
+
 from src.safety_eval.data import tag_identities
 
 def test_tag_identities():

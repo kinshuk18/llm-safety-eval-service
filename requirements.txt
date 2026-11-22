@@ -1,5 +1,5 @@
-# Note: datasets==2.21.0 is only needed for HateXplain preparation; python -m safety_eval.data regenerates all splits.
-datasets==2.21.0
+# Serving-only dependencies: API, calibration, monitoring, and review.
+# Training dependencies (torch, transformers, datasets) are in requirements-train.txt.
 fastapi==0.165.0
 httpx==0.28.1
 joblib==1.6.0
@@ -10,6 +10,5 @@ pytest==9.2.0
 PyYAML==6.0.4
 scikit-learn==1.9.1
 scipy==1.18.1
-torch==2.15.0
-transformers==5.24.0
 uvicorn==0.54.0
+numpy>=1.24.0

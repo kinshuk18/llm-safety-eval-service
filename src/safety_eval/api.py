@@ -101,7 +101,7 @@ def evaluate_text(req: EvaluateRequest):
             else:
                 raw_score_clipped = max(min(raw_score, 1.0 - 1e-7), 1e-7)
                 logit = float(np_logit(raw_score_clipped))
-            calibrated_score = float(calibrator.predict_proba(np.array([logit]))[0])
+            calibrated_score = float(calibrator.predict_proba([logit])[0])
         else:
             raw_score = 0.5
             calibrated_score = 0.5
@@ -135,8 +135,8 @@ def evaluate_text(req: EvaluateRequest):
         review_enqueued=enqueue_id is not None,
     )
 
-import numpy as np
 def np_logit(p: float) -> float:
+    import numpy as np  # lazy import — not needed at module load time
     return float(np.log(p / (1.0 - p)))
 
 @app.get("/monitor")
