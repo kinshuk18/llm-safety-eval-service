@@ -1,6 +1,6 @@
 # LLM Safety & Toxicity Evaluation Service
 
-![CI](https://github.com/YOUR_REPO/llm-safety-eval-service/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/kinshuk18/llm-safety-eval-service/actions/workflows/ci.yml/badge.svg)
 
 A production-grade REST service for real-time text toxicity detection and content moderation. Given any input text the service returns a calibrated toxicity probability, applies an asymmetric cost-optimal decision threshold, routes borderline predictions into a human-in-the-loop review queue, and streams rolling flagged-rate alerts to downstream observers. All models are evaluated against subgroup fairness metrics (Borkan et al. 2019) and out-of-domain benchmarks (HateXplain) to surface demographic bias before deployment.
 
@@ -50,8 +50,12 @@ User Request / Upstream LLM Output
 ## Quickstart (fresh clone)
 
 ```bash
+git clone https://github.com/kinshuk18/llm-safety-eval-service.git
+cd llm-safety-eval-service
+
+# Requires Python 3.12+ (scipy 1.18 needs it).
 # 1. Create virtual environment
-uv venv .venv && source .venv/bin/activate
+uv venv --python 3.12 .venv && source .venv/bin/activate
 
 # 2. Install serving dependencies
 uv pip install -r requirements.txt
