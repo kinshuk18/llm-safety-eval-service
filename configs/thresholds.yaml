@@ -1,0 +1,7 @@
+threshold: 0.5
+flagged_tolerance_margin: 0.1
+fn_cost: 5.0
+fp_cost: 1.0
+rolling_window_size: 100
+flagged_rate_alert_threshold: 0.20
+model_version: "baseline-tfidf-logreg-v1"

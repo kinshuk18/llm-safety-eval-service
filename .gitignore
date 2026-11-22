@@ -221,3 +221,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+*.db
+.venv/
+*.joblib
+
+data/*.parquet
+data/test_reviews.csv
+models/
+*.db
+__pycache__/
