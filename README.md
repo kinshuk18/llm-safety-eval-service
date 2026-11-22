@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/kinshuk18/llm-safety-eval-service/actions/workflows/ci.yml/badge.svg)
 
-A production-grade REST service for real-time text toxicity detection and content moderation. Given any input text the service returns a calibrated toxicity probability, applies an asymmetric cost-optimal decision threshold, routes borderline predictions into a human-in-the-loop review queue, and streams rolling flagged-rate alerts to downstream observers. All models are evaluated against subgroup fairness metrics (Borkan et al. 2019) and out-of-domain benchmarks (HateXplain) to surface demographic bias before deployment.
+A REST service for text toxicity detection and content moderation. Given any input text the service returns a calibrated toxicity probability, applies an asymmetric cost-optimal decision threshold, routes borderline predictions into a human-in-the-loop review queue, and exposes a rolling flagged-rate alert flag on GET /monitor (poll-based; nothing is pushed). All models are evaluated against subgroup fairness metrics (Borkan et al. 2019) and out-of-domain benchmarks (HateXplain) to surface demographic bias before deployment.
 
 ## Architecture
 
@@ -81,7 +81,7 @@ curl -s -X POST http://localhost:8000/evaluate \
      -H "Content-Type: application/json" \
      -d '{"text": "This is a test comment."}'
 
-# 9. Docker (serving image, ~200 MB; no torch)
+# 9. Docker (serving image; no torch)
 docker build -t safety-eval .
 docker run -p 8000:8000 safety-eval
 ```
@@ -103,11 +103,13 @@ Trained on Colab T4 GPU (1 epoch, 150k train, lr=2e-5, batch=32, max_len=128, fp
 
 ## Limitations
 
-- **Domain shift**: HateXplain AUROC collapses to 0.5666 (M1) — barely above chance. The model is trained on news-forum comments and does not generalize to social microblog speech without retraining.
-- **Identity-term FPR**: At the cost-optimal threshold, FPR for identity-mentioning comments is 3–5× overall for DistilBERT (lgbtq 0.3294, black 0.3177, white 0.2994 vs. overall 0.0645). Improved BPSN AUC does not eliminate this.
+- **Domain shift**: HateXplain AUROC (M1) is 0.5666 for the TF-IDF baseline and 0.6329 for DistilBERT, so transfer is weak in both cases. The models are trained on news-forum comments and do not generalize to social microblog speech without retraining.
+- **Identity-term FPR**: At the cost-optimal threshold, FPR for identity-mentioning comments is about 4.6–5.1× overall for DistilBERT (lgbtq 0.3294, black 0.3177, white 0.2994 vs. overall 0.0645). Improved BPSN AUC does not eliminate this.
 - **Threshold cost assumption**: Thresholds are tuned with a 5:1 FN:FP cost ratio. Deployments with different cost profiles must re-tune on their own validation data.
 - **Binary only**: The service predicts a single toxic/safe score; nuanced categories (threats, identity attacks, etc.) are not distinguished.
 - **Not a compliance guarantee**: This tool surfaces risk signals; human review is required before any punitive enforcement.
+- **Review queue is not persistent**: Pending items are stored in a SQLite file (`review_queue.db`) in the process working directory. The Docker image mounts no volume, so items are lost when the container is removed. The review band is the decision threshold ± `flagged_tolerance_margin` (0.1); its fill rate on realistic traffic has not been measured.
+- **Alerts are poll-only**: `GET /monitor` computes an `alert` flag when called. The service does not push, log or deliver alerts anywhere.
 - **Small subgroup sizes**: BPSN/BNSP AUCs for rare identity groups have high variance due to limited test samples.
 
 ## Ethics

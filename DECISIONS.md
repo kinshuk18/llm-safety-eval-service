@@ -83,7 +83,7 @@ This document records key engineering and modeling decisions backed strictly by 
 ### 11. DistilBERT vs Baseline — What Improved and What Did Not
 - **Question**: Does DistilBERT reduce identity-group false positive rate compared to the baseline?
 - **What I tried**: Evaluated both models at their respective cost-optimal thresholds (baseline τ=0.1161, DistilBERT τ=0.1769).
-- **Result**: AUROC improved 0.9196→0.9562, Borkan bias metric improved 0.8681→0.9189, BPSN worst-case improved from 0.7285 (white) to 0.8537 (black). However, identity-group FPR at threshold did NOT meaningfully improve for DistilBERT: lgbtq FPR=0.3294, black FPR=0.3177, white FPR=0.2994 vs overall FPR=0.0645 — still 3–5× higher, essentially the same pattern as baseline.
+- **Result**: AUROC improved 0.9196→0.9562, Borkan bias metric improved 0.8681→0.9189, BPSN worst-case improved from 0.7285 (white) to 0.8537 (black). However, identity-group FPR at threshold did NOT meaningfully improve for DistilBERT: lgbtq FPR=0.3294, black FPR=0.3177, white FPR=0.2994 vs overall FPR=0.0645 — still about 4.6–5.1× higher, essentially the same pattern as baseline.
 - **Decision**: Report both BPSN AUC (which improved) and subgroup FPR at threshold (which did not) separately, since they measure different failure modes.
 - **What failed**: Assuming that improved BPSN AUC would translate to lower identity-group FPR at the operational threshold; the token-association problem persists even in fine-tuned transformers without explicit debiasing.
 
