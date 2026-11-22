@@ -51,4 +51,4 @@ All numbers recorded in this document are strictly sourced from saved experiment
 
 | Model | Sample Size | Batch Size | p50 Latency (ms) | p95 Latency (ms) |
 |---|---|---|---|---|
-| **TF-IDF + LR Baseline** | 500 comments | 1 | *(Measured in Phase D)* | *(Measured in Phase D)* |
+| **TF-IDF + LR Baseline** | 500 | 1 | 0.37 ms | 0.49 ms |

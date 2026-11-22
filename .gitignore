@@ -229,5 +229,6 @@ __marimo__/
 data/*.parquet
 data/preds_*.parquet
 data/test_reviews.csv
+data/*.csv
 models/
 __pycache__/
