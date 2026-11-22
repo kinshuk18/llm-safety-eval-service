@@ -101,7 +101,8 @@ def evaluate_text(req: EvaluateRequest):
             else:
                 raw_score_clipped = max(min(raw_score, 1.0 - 1e-7), 1e-7)
                 logit = float(np_logit(raw_score_clipped))
-            calibrated_score = float(calibrator.predict_proba([logit])[0])
+            import numpy as _np  # lazy import for calibration
+            calibrated_score = float(calibrator.predict_proba(_np.array([logit]))[0])
         else:
             raw_score = 0.5
             calibrated_score = 0.5
