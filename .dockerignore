@@ -1,0 +1,12 @@
+.venv/
+data/
+tests/
+*.parquet
+*.db
+models/*.zip
+__pycache__/
+*.pyc
+.git/
+.pytest_cache/
+*.egg-info/
+requirements-train.txt
