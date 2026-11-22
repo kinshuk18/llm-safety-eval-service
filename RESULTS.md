@@ -23,8 +23,9 @@ All numbers recorded in this document are strictly sourced from saved experiment
 | **TF-IDF + LR** | Civil Comments Test | 0.9196 | 0.6439 | 0.4702 | 0.5717 | 0.0228 -> 0.0153 | 0.8681 | 0.1161 |
 | **TF-IDF + LR** | HateXplain M1 (Hateful+Offensive -> 1) | 0.5666 | 0.6644 | 0.3401 | — | 0.3745 | 0.5637 | — |
 | **TF-IDF + LR** | HateXplain M2 (Hateful -> 1, Off Excl) | 0.5564 | 0.5063 | 0.3058 | — | 0.2639 | 0.5622 | — |
-| **DistilBERT** | Civil Comments Test | *(Pending Colab GPU)* | *(Pending Colab GPU)* | *(Pending Colab GPU)* | *(Pending Colab GPU)* | *(Pending Colab GPU)* | *(Pending Colab GPU)* | *(Pending Colab GPU)* |
-| **DistilBERT** | HateXplain M1 / M2 | *(Pending Colab GPU)* | *(Pending Colab GPU)* | *(Pending Colab GPU)* | *(Pending Colab GPU)* | *(Pending Colab GPU)* | *(Pending Colab GPU)* | *(Pending Colab GPU)* |
+| **DistilBERT** | Civil Comments Test | 0.9562 | 0.7472 | 0.6713 | 0.6321 | 0.0099 -> 0.0069 | 0.9189 | 0.1769 |
+| **DistilBERT** | HateXplain M1 | 0.6329 | 0.7019 | 0.5882 | — | 0.2924 | 0.6268 | — |
+| **DistilBERT** | HateXplain M2 | 0.6219 | 0.5421 | 0.5086 | — | 0.2726 | 0.6315 | — |
 
 ---
 

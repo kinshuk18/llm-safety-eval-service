@@ -414,5 +414,187 @@
       "p95_ms": 0.493,
       "mean_ms": 0.382
     }
+  },
+  "distilbert": {
+    "model": "DistilBERT Fine-Tuned",
+    "civil_comments_val": {
+      "auroc": 0.9573,
+      "pr_auc": 0.7474,
+      "f1": 0.6569,
+      "ece": 0.0096,
+      "borkan_bias_metric": 0.9135,
+      "subgroup_auc": {
+        "male": 0.9264,
+        "female": 0.8908,
+        "lgbtq": 0.8109,
+        "christian": 0.9252,
+        "muslim": 0.8596,
+        "jewish": 0.8439,
+        "black": 0.8321,
+        "white": 0.8622,
+        "psychiatric_or_mental_illness": 0.8546
+      },
+      "bpsn_auc": {
+        "male": 0.9188,
+        "female": 0.9123,
+        "lgbtq": 0.8501,
+        "christian": 0.9435,
+        "muslim": 0.8614,
+        "jewish": 0.8718,
+        "black": 0.8509,
+        "white": 0.8543,
+        "psychiatric_or_mental_illness": 0.9351
+      },
+      "bnsp_auc": {
+        "male": 0.9627,
+        "female": 0.9502,
+        "lgbtq": 0.9529,
+        "christian": 0.9437,
+        "muslim": 0.9596,
+        "jewish": 0.9557,
+        "black": 0.9553,
+        "white": 0.9637,
+        "psychiatric_or_mental_illness": 0.9115
+      }
+    },
+    "civil_comments_test": {
+      "auroc": 0.9562,
+      "pr_auc": 0.7472,
+      "f1": 0.6713,
+      "ece": 0.0099,
+      "borkan_bias_metric": 0.9189,
+      "subgroup_auc": {
+        "male": 0.902,
+        "female": 0.9165,
+        "lgbtq": 0.8126,
+        "christian": 0.9107,
+        "muslim": 0.8642,
+        "jewish": 0.9099,
+        "black": 0.8416,
+        "white": 0.8562,
+        "psychiatric_or_mental_illness": 0.92
+      },
+      "bpsn_auc": {
+        "male": 0.9117,
+        "female": 0.9224,
+        "lgbtq": 0.8432,
+        "christian": 0.9552,
+        "muslim": 0.8811,
+        "jewish": 0.896,
+        "black": 0.8537,
+        "white": 0.8554,
+        "psychiatric_or_mental_illness": 0.9296
+      },
+      "bnsp_auc": {
+        "male": 0.9555,
+        "female": 0.9551,
+        "lgbtq": 0.9515,
+        "christian": 0.9201,
+        "muslim": 0.9554,
+        "jewish": 0.9622,
+        "black": 0.9613,
+        "white": 0.9648,
+        "psychiatric_or_mental_illness": 0.9534
+      },
+      "optimal_threshold": 0.1769,
+      "precision_at_optimal_threshold": 0.5202,
+      "recall_at_optimal_threshold": 0.8054,
+      "f1_at_optimal_threshold": 0.6321,
+      "overall_fpr_at_optimal_threshold": 0.0645,
+      "subgroup_fpr_at_optimal_threshold": {
+        "male": 0.1526,
+        "female": 0.1347,
+        "lgbtq": 0.3294,
+        "christian": 0.046,
+        "muslim": 0.2157,
+        "jewish": 0.1707,
+        "black": 0.3177,
+        "white": 0.2994,
+        "psychiatric_or_mental_illness": 0.125
+      },
+      "ece_uncalibrated": 0.0099,
+      "ece_calibrated": 0.0069
+    },
+    "hatexplain_test_m1": {
+      "auroc": 0.6329,
+      "pr_auc": 0.7019,
+      "f1": 0.5882,
+      "ece": 0.2924,
+      "borkan_bias_metric": 0.6268,
+      "subgroup_auc": {
+        "male": 0.6474,
+        "female": 0.6417,
+        "lgbtq": 0.5936,
+        "christian": 0.6375,
+        "muslim": 0.7128,
+        "jewish": 0.5976,
+        "black": 0.6367,
+        "white": 0.678
+      },
+      "bpsn_auc": {
+        "male": 0.5429,
+        "female": 0.632,
+        "lgbtq": 0.4955,
+        "christian": 0.6221,
+        "muslim": 0.6199,
+        "jewish": 0.6179,
+        "black": 0.4996,
+        "white": 0.533
+      },
+      "bnsp_auc": {
+        "male": 0.7225,
+        "female": 0.6411,
+        "lgbtq": 0.7269,
+        "christian": 0.6327,
+        "muslim": 0.6965,
+        "jewish": 0.6249,
+        "black": 0.7641,
+        "white": 0.7425
+      }
+    },
+    "hatexplain_test_m2": {
+      "auroc": 0.6219,
+      "pr_auc": 0.5421,
+      "f1": 0.5086,
+      "ece": 0.2726,
+      "borkan_bias_metric": 0.6315,
+      "subgroup_auc": {
+        "male": 0.7349,
+        "female": 0.7152,
+        "lgbtq": 0.6478,
+        "christian": 0.6562,
+        "muslim": 0.7388,
+        "jewish": 0.6154,
+        "black": 0.5818,
+        "white": 0.6765
+      },
+      "bpsn_auc": {
+        "male": 0.5255,
+        "female": 0.6145,
+        "lgbtq": 0.4816,
+        "christian": 0.607,
+        "muslim": 0.6044,
+        "jewish": 0.6013,
+        "black": 0.4873,
+        "white": 0.5139
+      },
+      "bnsp_auc": {
+        "male": 0.7948,
+        "female": 0.7044,
+        "lgbtq": 0.7592,
+        "christian": 0.6561,
+        "muslim": 0.7233,
+        "jewish": 0.6334,
+        "black": 0.7404,
+        "white": 0.7372
+      }
+    },
+    "calibration": {
+      "temperature": 1.0724,
+      "optimal_threshold": 0.1769,
+      "val_cost": 2732.0,
+      "ece_test_before": 0.0099,
+      "ece_test_after": 0.0069
+    }
   }
 }
